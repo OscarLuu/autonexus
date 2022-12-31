@@ -12,6 +12,7 @@ loop_time = time()
 while(True):
     screenshot = capture.get_screenshot()
     cv2.imshow('result', vision.process_screenshot(screenshot))
+    #vision.process_screenshot(screenshot)
 
     print('FPS {}'.format(1 / (time() - loop_time)))
     loop_time = time()

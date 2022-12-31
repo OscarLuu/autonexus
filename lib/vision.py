@@ -1,17 +1,20 @@
 import cv2
 import numpy as np
+import pytesseract
 
 class Vision:
 
     def __init__(self, image_path: str, debug: bool=False):
+        pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
         self.stats = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         self.stats_w = self.stats.shape[1]
         self.stats_h = self.stats.shape[0]
+
         self.debug = debug
 
     def process_screenshot(self, image):
         result = cv2.matchTemplate(image, self.stats, cv2.TM_CCOEFF_NORMED)
-        locations = np.where(result >= .65)
+        locations = np.where(result >= .5)
         locations = list(zip(*locations[::-1]))
 
         rectangles = []
@@ -19,6 +22,24 @@ class Vision:
             rect = [int(loc[0]), int(loc[1]), self.stats_w, self.stats_h]
 
             rectangles.append(rect)
+
+        if rectangles:
+            for (x, y, w, h) in rectangles:
+                blur = cv2.GaussianBlur(image, (1,1), 0)
+                cropped_image = blur[y: y+h, x: x+w]
+                ret, glob_thresh = cv2.threshold(cropped_image, 143, 255, cv2.THRESH_BINARY)
+
+                kernel = np.ones((2,2), np.uint8)
+                dilated = cv2.dilate(glob_thresh, kernel, iterations=1)
+                inverted = cv2.bitwise_not(dilated)
+
+                # text = pytesseract.image_to_string(inverted).split()
+                # health_data = dict(
+                #     health=text[2],
+                #     mana=text[5]
+                # )
+                # print(health_data)
+                return inverted
 
         if self.debug:
             line_color = (0, 255, 0)
@@ -31,3 +52,5 @@ class Vision:
                 lineType=line_type, thickness=2)
 
         return image
+
+
