@@ -44,7 +44,6 @@ class Vision:
                         current_mana=mana[0],
                         max_mana=mana[1]
                     )
-
                     return health_data
 
 
@@ -57,4 +56,3 @@ class Vision:
 
                 cv2.rectangle(image, top_left, bottom_right, color=line_color,
                 lineType=line_type, thickness=2)
-            

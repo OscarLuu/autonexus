@@ -16,7 +16,8 @@ while(True):
     screenshot = capture.get_screenshot()
     #cv2.imshow('result', vision.process_screenshot(screenshot))
     data = vision.process_screenshot(screenshot)
-    conductor.conductor(data)
+    if data:
+        conductor.conductor(data)
 
     print('FPS {}'.format(1 / (time() - loop_time)))
     loop_time = time()
