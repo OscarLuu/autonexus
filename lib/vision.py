@@ -33,13 +33,20 @@ class Vision:
                 dilated = cv2.dilate(glob_thresh, kernel, iterations=1)
                 inverted = cv2.bitwise_not(dilated)
 
-                # text = pytesseract.image_to_string(inverted).split()
-                # health_data = dict(
-                #     health=text[2],
-                #     mana=text[5]
-                # )
-                # print(health_data)
-                return inverted
+                text = pytesseract.image_to_string(inverted).split()
+                health = text[2].split('/')
+                mana = text[5].split('/')
+
+                if len(health) == 2 and len(mana) == 2:
+                    health_data = dict(
+                        current_hp=health[0],
+                        max_hp=health[1],
+                        current_mana=mana[0],
+                        max_mana=mana[1]
+                    )
+
+                    return health_data
+
 
         if self.debug:
             line_color = (0, 255, 0)
@@ -50,7 +57,4 @@ class Vision:
 
                 cv2.rectangle(image, top_left, bottom_right, color=line_color,
                 lineType=line_type, thickness=2)
-
-        return image
-
-
+            
