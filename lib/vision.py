@@ -33,26 +33,27 @@ class Vision:
                 dilated = cv2.dilate(glob_thresh, kernel, iterations=1)
                 inverted = cv2.bitwise_not(dilated)
 
+                if self.debug: 
+                    cv2.imshow('result', inverted)
+
                 text = pytesseract.image_to_string(inverted).split()
                 health = text[2].split('/')
                 mana = text[5].split('/')
 
                 if len(health) == 2 and len(mana) == 2:
-                    health_data = dict(
-                        current_hp=health[0],
-                        max_hp=health[1],
-                        current_mana=mana[0],
-                        max_mana=mana[1]
-                    )
+                    try:
+                        health_data = dict(
+                            current_hp=int(health[0]),
+                            max_hp=int(health[1]),
+                            current_mana=int(mana[0]),
+                            max_mana=int(mana[1])
+                        )
+                    except ValueError as e:
+                        print ("Skipping due to parse error with data: {}".format(e))
+                        return None
+                    except IndexError as e:
+                        print ("SKipping due to list index: {}".format(e))
+                        return None
+
                     return health_data
 
-
-        if self.debug:
-            line_color = (0, 255, 0)
-            line_type = cv2.LINE_4
-            for (x, y, w, h) in rectangles:
-                top_left = (x, y)
-                bottom_right = (x + w, y + h)
-
-                cv2.rectangle(image, top_left, bottom_right, color=line_color,
-                lineType=line_type, thickness=2)
